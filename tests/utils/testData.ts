@@ -1,30 +1,25 @@
 export const TestData = {
   
-  validUsers: {
+  allUsers: {
     standard: {
       username: 'standard_user',
       password: 'secret_sauce',
-      description: 'Standard user with normal behavior'
     },
     problem: {
       username: 'problem_user',
       password: 'secret_sauce',
-      description: 'User with UI/functionality issues'
     },
     performanceGlitch: {
       username: 'performance_glitch_user',
       password: 'secret_sauce',
-      description: 'User with intentional performance delays'
     },
     error: {
       username: 'error_user',
       password: 'secret_sauce',
-      description: 'User that encounters errors'
     },
     visual: {
       username: 'visual_user',
       password: 'secret_sauce',
-      description: 'User with visual differences'
     }
   },
 
@@ -127,10 +122,10 @@ export const TestData = {
 };
 
 export function getAllValidUsers() {
-  return Object.values(TestData.validUsers);
+  return Object.values(TestData.allUsers);
 }
 
 
 export function getLoginTimeout(username: string): number {
-  return username === TestData.validUsers.performanceGlitch.username ? 10000 : 5000;
+  return username === TestData.allUsers.performanceGlitch.username ? 10000 : 5000;
 }

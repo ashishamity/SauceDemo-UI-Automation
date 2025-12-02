@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class LoginPage {
   readonly page: Page;
@@ -19,6 +19,11 @@ export class LoginPage {
   
   async goto() {
     await this.page.goto('/');
+    await expect(this.page).toHaveURL('/');
+  }
+
+  async assertLoginPageURL(){
+    await expect(this.page).toHaveURL('/');
   }
 
   async login(username: string, password: string) {

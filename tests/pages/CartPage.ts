@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 
 export class CartPage {
@@ -45,5 +45,15 @@ export class CartPage {
   async isProductInCart(productName: string): Promise<boolean> {
     const cartItems = await this.getCartItemNames();
     return cartItems.includes(productName);
+  }
+
+  async assertCartItemCount(expectedCount:number){
+    const count = await this.getCartItemCount();
+    expect(count).toBe(expectedCount);
+  }
+
+  async assertProductInCart(productName: string){
+    const isPresent = await this.isProductInCart(productName);
+    expect(isPresent).toBe(true);
   }
 }

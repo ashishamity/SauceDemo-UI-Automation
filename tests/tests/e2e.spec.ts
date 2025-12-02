@@ -12,42 +12,59 @@ test.describe('E2E Flow - Complete Purchase Journey', () => {
     checkoutComplete,
     page 
   }) => {
-    // Step 1: Login
-    await loginPage.goto();
-    await loginPage.login(TestData.validUsers.standard.username, TestData.validUsers.standard.password);
-    await expect(page).toHaveURL(/.*inventory.html/);
-    // Step 2: Browse and add item to cart
-    await inventoryPage.addProductToCart(TestData.products.backpack);
-    expect(await inventoryPage.getCartItemCount()).toBe(1);
-    // Step 3: Go to cart and verify
-    await inventoryPage.goToCart();
-    expect(await cartPage.getCartItemCount()).toBe(1);
-    expect(await cartPage.isProductInCart(TestData.products.backpack)).toBe(true);
-    // Step 4: Proceed to checkout
-    await cartPage.checkout();
-    await expect(page).toHaveURL(/.*checkout-step-one.html/);
-    // Step 5: Fill checkout information
-    await checkoutStepOne.completeStepOne(TestData.checkoutInfo.john.firstName, TestData.checkoutInfo.john.lastName, TestData.checkoutInfo.john.zip);
-    await expect(page).toHaveURL(/.*checkout-step-two.html/);
-    // Step 6: Review order
-    expect(await checkoutStepTwo.getCartItemCount()).toBe(1);
+
+    const { username, password } = TestData.allUsers.standard;
+    const product = TestData.products.backpack;
+    const expectedPrice = TestData.productPrices.backpack;
+    const {firstName,lastName,zip} = TestData.checkoutInfo.john;
+
+
+    await test.step('Login', async () => {
+      await loginPage.goto();
+      await loginPage.login(username, password);
+      await inventoryPage.assertInventoryPageUrl();
+    });
+
+    await test.step('Add item to cart and verify count', async () => {
+      await inventoryPage.addProductToCart(product);
+      await inventoryPage.assertCartItemCount(1);
+    });
+
+    await test.step('Open cart and verify product', async () => {
+      await inventoryPage.goToCart();
+      await cartPage.assertCartItemCount(1);
+      await cartPage.assertProductInCart(product);
+    });
+
+   await test.step('Proceed to checkout and fill details', async () => {
+      await cartPage.checkout();
+      await checkoutStepOne.assertOnStepOne();
+      await checkoutStepOne.completeStepOne(firstName,lastName,zip);
+      await checkoutStepTwo.assertOnStepTwo();
+      expect(await checkoutStepTwo.getCartItemCount()).toBe(1);
+    });
+    
+    
+   await test.step('Verify order summary & calculations', async () => {
     const itemTotal = await checkoutStepTwo.getItemTotal();
     const tax = await checkoutStepTwo.getTax();
     const total = await checkoutStepTwo.getTotal();
-    // Verify calculations
-    expect(itemTotal).toBe(TestData.productPrices.backpack);
+    expect(itemTotal).toBe(expectedPrice);
     expect(tax).toBeGreaterThan(0);
     expect(await checkoutStepTwo.isTotalCalculationCorrect()).toBe(true);
-    // Step 7: Complete purchase
-    await checkoutStepTwo.finish();
-    await expect(page).toHaveURL(/.*checkout-complete.html/);
-    // Step 8: Verify order confirmation
-    await expect(checkoutComplete.completeHeader).toBeVisible();
-    expect(await checkoutComplete.isCartEmpty()).toBe(true);
-    // Step 9: Return home
-    await checkoutComplete.backHome();
-    await expect(page).toHaveURL(/.*inventory.html/);
-    expect(await inventoryPage.getCartItemCount()).toBe(0);
+    });
+
+    await test.step('Complete purchase and verify confirmation', async () => {
+      await checkoutStepTwo.finish();
+      await expect(page).toHaveURL(/.*checkout-complete.html/);
+      await expect(checkoutComplete.completeHeader).toBeVisible();
+      expect(await checkoutComplete.isCartEmpty()).toBe(true);
+    });
+   await test.step('Return home and final validations', async () => {
+       await checkoutComplete.backHome();
+       await expect(page).toHaveURL(/.*inventory.html/);
+       expect(await inventoryPage.getCartItemCount()).toBe(0);
+    });
   });
 
   test('Verify user is able to complete purchase with all 6 items', async ({ 
@@ -59,7 +76,7 @@ test.describe('E2E Flow - Complete Purchase Journey', () => {
     checkoutComplete
    }) => {
     await loginPage.goto();
-    await loginPage.login(TestData.validUsers.standard.username, TestData.validUsers.standard.password);
+    await loginPage.login(TestData.allUsers.standard.username, TestData.allUsers.standard.password);
 
     // Add all products
     await inventoryPage.addAllProductsToCart();
@@ -90,7 +107,7 @@ test.describe('E2E Flow - Complete Purchase Journey', () => {
      page }) => {
     // Step 1: Login
     await loginPage.goto();
-    await loginPage.login(TestData.validUsers.standard.username, TestData.validUsers.standard.password);
+    await loginPage.login(TestData.allUsers.standard.username, TestData.allUsers.standard.password);
     await expect(page).toHaveURL(/.*inventory.html/);
     // Step 2: Add two products from inventory
     await inventoryPage.addProductToCart(TestData.products.backpack);

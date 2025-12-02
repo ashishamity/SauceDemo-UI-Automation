@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class CheckoutStepTwoPage {
   readonly page: Page;
@@ -75,5 +75,8 @@ export class CheckoutStepTwoPage {
     const itemNames = await this.getCartItemNames();
     return itemNames.includes(productName);
   }
+   async assertOnStepTwo(){
+      await expect(this.page).toHaveURL(/.*checkout-step-two.html/);
+    }
 
 }

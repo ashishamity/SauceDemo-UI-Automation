@@ -98,4 +98,9 @@ export class InventoryPage {
   async assertInventoryPageUrl(options: object = {}) {
     await expect(this.page).toHaveURL(InventoryPage.INVENTORY_URL_PATTERN, options);
   }
+
+  async assertCartItemCount(expectedCount: number){
+    const count = await this.getCartItemCount();
+    expect(count).toBe(1);
+  }
 }

@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect} from '@playwright/test';
 
 
 export class CheckoutStepOnePage {
@@ -34,5 +34,9 @@ export class CheckoutStepOnePage {
   async completeStepOne(firstName: string, lastName: string, postalCode: string) {
     await this.fillCheckoutInformation(firstName, lastName, postalCode);
     await this.continue();
+  }
+
+  async assertOnStepOne(){
+    await expect(this.page).toHaveURL(/.*checkout-step-one.html/);
   }
 }

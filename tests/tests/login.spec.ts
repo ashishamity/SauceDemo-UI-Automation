@@ -1,11 +1,11 @@
-// Uses Playwright fixtures for page object creation. See tests/fixtures.ts.
+
 import { test, expect } from '../fixtures/fixtures';
 import { TestData, getLoginTimeout } from '../utils/testData';
 
 test.describe('Validate Login page test scenarios', () => {
   
-  test('Verify user is able to login successfully with standard_user', async ({ loginPage, inventoryPage }) => {
-    const { username, password } = TestData.validUsers.standard;
+  test('Verify user is able to login successfully with standard_user', async ({ loginPage, inventoryPage,page }) => {
+    const { username, password } = TestData.allUsers.standard;
     await loginPage.goto();
     await loginPage.login(username, password);
     await inventoryPage.assertInventoryPageUrl();
@@ -13,14 +13,14 @@ test.describe('Validate Login page test scenarios', () => {
     await expect(inventoryPage.productTitle).toContainText('Products');
   });
 
-  const specialUsers = [
-    { username: TestData.validUsers.problem.username, password: TestData.validUsers.problem.password },
-    { username: TestData.validUsers.performanceGlitch.username, password: TestData.validUsers.performanceGlitch.password },
-    { username: TestData.validUsers.error.username, password: TestData.validUsers.error.password },
-    { username: TestData.validUsers.visual.username, password: TestData.validUsers.visual.password }
+  const loginUsers = [
+    { username: TestData.allUsers.problem.username, password: TestData.allUsers.problem.password },
+    { username: TestData.allUsers.performanceGlitch.username, password: TestData.allUsers.performanceGlitch.password },
+    { username: TestData.allUsers.error.username, password: TestData.allUsers.error.password },
+    { username: TestData.allUsers.visual.username, password: TestData.allUsers.visual.password }
   ];
 
-  specialUsers.forEach(user => {
+  loginUsers.forEach(user => {
     test(`Verify user is able to login succesfully with ${user.username}`, async ({ loginPage, inventoryPage }) => {
       await loginPage.goto();
       await loginPage.login(user.username, user.password);
@@ -29,7 +29,7 @@ test.describe('Validate Login page test scenarios', () => {
   });
 
   test('Verify session is maintained after page refresh', async ({ loginPage, inventoryPage, page }) => {
-    const { username, password } = TestData.validUsers.standard;
+    const { username, password } = TestData.allUsers.standard;
     await loginPage.goto();
     await loginPage.login(username, password);
     await inventoryPage.assertInventoryPageUrl();
@@ -39,17 +39,12 @@ test.describe('Validate Login page test scenarios', () => {
   });
 
   test('Verify user should be able to login after logout', async ({ loginPage, inventoryPage, page }) => {
-    const { username, password } = TestData.validUsers.standard;
-
+    const { username, password } = TestData.allUsers.standard;
     await loginPage.goto();
     await loginPage.login(username, password);
     await inventoryPage.assertInventoryPageUrl();
-
-    // Logout
     await inventoryPage.logout();
-    await expect(page).toHaveURL(/.*\/$/);
-
-    // Login again
+    await loginPage.assertLoginPageURL();
     await loginPage.login(username, password);
     await inventoryPage.assertInventoryPageUrl();
   });
@@ -76,11 +71,10 @@ test.describe('Validate Login page test scenarios', () => {
     }
   });
 
-  test('Verify user should be redirected to login when accessing inventory without authentication', async ({ page }) => {
+  test('Verify user should be redirected to login when accessing inventory without authentication', async ({ page , loginPage}) => {
     const inventoryUrl = '/inventory.html';
-    const expectedLoginUrlPattern = /.*\/$/;
     await page.goto(inventoryUrl);
-    await expect(page).toHaveURL(expectedLoginUrlPattern);
+    loginPage.assertLoginPageURL();
   });
 
   test('Verify input for password is masked', async ({ loginPage }) => {
@@ -91,6 +85,3 @@ test.describe('Validate Login page test scenarios', () => {
   });
   
 });
-
-
-
