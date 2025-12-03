@@ -105,53 +105,53 @@ test.describe('E2E Flow - Complete Purchase Journey', () => {
      checkoutComplete, 
      productDetailPage, 
      page }) => {
-    // Step 1: Login
+   
     await loginPage.goto();
     await loginPage.login(TestData.allUsers.standard.username, TestData.allUsers.standard.password);
     await expect(page).toHaveURL(/.*inventory.html/);
-    // Step 2: Add two products from inventory
+   
     await inventoryPage.addProductToCart(TestData.products.backpack);
     await inventoryPage.addProductToCart(TestData.products.bikeLight);
     expect(await inventoryPage.getCartItemCount()).toBe(2);
-    // Step 3: Add one product from product detail page
+    
     await inventoryPage.clickProductByName(TestData.products.boltTShirt);
     await productDetailPage.addToCart();
     await productDetailPage.goToCart();
     expect(await cartPage.getCartItemCount()).toBe(3);
-    // Step 4: Remove one item from cart
+    
     await cartPage.removeItemByName(TestData.products.bikeLight);
     expect(await cartPage.getCartItemCount()).toBe(2);
-    // Step 5: Go back to inventory, sort by price, add cheapest item
+    
     await cartPage.continueShopping();
     await inventoryPage.sortBy('lohi');
     await inventoryPage.addProductToCartByIndex(0); // Add cheapest
     expect(await inventoryPage.getCartItemCount()).toBe(3);
-    // Step 6: Go to cart and proceed to checkout
+   
     await inventoryPage.goToCart();
     await cartPage.checkout();
     await expect(page).toHaveURL(/.*checkout-step-one.html/);
-    // Step 7: Try to submit with empty first name (validation error)
+   
     await checkoutStepOne.fillCheckoutInformation('', TestData.checkoutInfo.john.lastName, TestData.checkoutInfo.john.zip);
     await checkoutStepOne.continue();
     await expect(checkoutStepOne.errorMessage).toBeVisible();
-    // Step 8: Fix error and continue
+    
     await checkoutStepOne.fillCheckoutInformation(TestData.checkoutInfo.john.firstName, TestData.checkoutInfo.john.lastName, TestData.checkoutInfo.john.zip);
     await checkoutStepOne.continue();
     await expect(page).toHaveURL(/.*checkout-step-two.html/);
-    // Step 9: Review order and verify items
+    
     expect(await checkoutStepTwo.getCartItemCount()).toBe(3);
     expect(await checkoutStepTwo.isProductInOrder(TestData.products.backpack)).toBe(true);
     expect(await checkoutStepTwo.isProductInOrder(TestData.products.boltTShirt)).toBe(true);
-    // Step 10: Complete purchase
+   
     await checkoutStepTwo.finish();
     await expect(page).toHaveURL(/.*checkout-complete.html/);
     await expect(checkoutComplete.completeHeader).toBeVisible();
     expect(await checkoutComplete.isCartEmpty()).toBe(true);
-    // Step 11: Return home and verify cart is empty
+   
     await checkoutComplete.backHome();
     await expect(page).toHaveURL(/.*inventory.html/);
     expect(await inventoryPage.getCartItemCount()).toBe(0);
-    // Step 12: Logout and verify session cleared
+    
     await inventoryPage.logout();
     await expect(page).toHaveURL(/.*\/$/);
   });
