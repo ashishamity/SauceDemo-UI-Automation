@@ -105,55 +105,69 @@ test.describe('E2E Flow - Complete Purchase Journey', () => {
      checkoutComplete, 
      productDetailPage, 
      page }) => {
+
+  // Test Step - Launch the application and verify user is on inventory page.
    
     await loginPage.goto();
     await loginPage.login(TestData.allUsers.standard.username, TestData.allUsers.standard.password);
     await expect(page).toHaveURL(/.*inventory.html/);
-   
+  
+  // Add prodcuts to cart and verify the count
     await inventoryPage.addProductToCart(TestData.products.backpack);
     await inventoryPage.addProductToCart(TestData.products.bikeLight);
     expect(await inventoryPage.getCartItemCount()).toBe(2);
     
+  // Add products to cart again and verify the count should be increased
+
     await inventoryPage.clickProductByName(TestData.products.boltTShirt);
     await productDetailPage.addToCart();
     await productDetailPage.goToCart();
     expect(await cartPage.getCartItemCount()).toBe(3);
-    
+
+    // Remove one product and verify count of card should be decreased
     await cartPage.removeItemByName(TestData.products.bikeLight);
     expect(await cartPage.getCartItemCount()).toBe(2);
-    
+
+    //Sort by low to high and add 1st product in cart and verify the cart count
     await cartPage.continueShopping();
     await inventoryPage.sortBy('lohi');
-    await inventoryPage.addProductToCartByIndex(0); // Add cheapest
+    await inventoryPage.addProductToCartByIndex(0);
     expect(await inventoryPage.getCartItemCount()).toBe(3);
+
+    //Navigate to checkout page one and verify the url
    
     await inventoryPage.goToCart();
     await cartPage.checkout();
     await expect(page).toHaveURL(/.*checkout-step-one.html/);
-   
+    
+   // Verify if error message is displayed if any field is left emmpty.
     await checkoutStepOne.fillCheckoutInformation('', TestData.checkoutInfo.john.lastName, TestData.checkoutInfo.john.zip);
     await checkoutStepOne.continue();
     await expect(checkoutStepOne.errorMessage).toBeVisible();
     
+    // Verify user is able to navigate to to checkout step two page
     await checkoutStepOne.fillCheckoutInformation(TestData.checkoutInfo.john.firstName, TestData.checkoutInfo.john.lastName, TestData.checkoutInfo.john.zip);
     await checkoutStepOne.continue();
     await expect(page).toHaveURL(/.*checkout-step-two.html/);
-    
+
+    //Verify product counta and product is present on the checkout page.
     expect(await checkoutStepTwo.getCartItemCount()).toBe(3);
     expect(await checkoutStepTwo.isProductInOrder(TestData.products.backpack)).toBe(true);
     expect(await checkoutStepTwo.isProductInOrder(TestData.products.boltTShirt)).toBe(true);
    
+    // Verify checkout is succesffull and banner is visible
     await checkoutStepTwo.finish();
     await expect(page).toHaveURL(/.*checkout-complete.html/);
     await expect(checkoutComplete.completeHeader).toBeVisible();
     expect(await checkoutComplete.isCartEmpty()).toBe(true);
-   
+
+   // Verify count is 0 when returend to  inventory page.
     await checkoutComplete.backHome();
     await expect(page).toHaveURL(/.*inventory.html/);
     expect(await inventoryPage.getCartItemCount()).toBe(0);
-    
+    // Logout and assert login page url
     await inventoryPage.logout();
-    await expect(page).toHaveURL(/.*\/$/);
+    await loginPage.assertLoginPageURL();
   });
 });
 
