@@ -10,7 +10,6 @@ Comprehensive project consist of automated UI testsuite for website [https://www
         -utils
 ├── playwright.config.ts
 ├── package.json 
-├── tsconfig.json 
 └── .gitignore
 
 ## Prerequisite:
