@@ -11,6 +11,6 @@
     "isolatedModules": true,
     "types": ["node", "@playwright/test"]
   },
-  "include": ["tests/**/*"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"]
 }

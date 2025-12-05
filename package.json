@@ -10,24 +10,13 @@
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
     "test:login": "playwright test login.spec.ts",
-    "test:checkout:complete-flow": "playwright test checkoutComplete.spec.ts --grep \"Complete Order Flow\"",
     "test:chrome": "playwright test --project=chromium",
     "test:firefox": "playwright test --project=firefox",
     "test:webkit": "playwright test --project=webkit",
-    "test:all-browsers": "playwright test --project=chromium --project=firefox --project=webkit",
     "test:failed": "playwright test --last-failed",
     "test:parallel": "playwright test --workers=4",
-    "report": "playwright show-report",
-    "codegen": "playwright codegen https://www.saucedemo.com",
-    "install:browsers": "playwright install --with-deps"
+    "report": "playwright show-report"
   },
-  "keywords": [
-    "playwright",
-    "typescript",
-    "automation",
-    "testing",
-    "saucedemo"
-  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
